@@ -23,6 +23,8 @@
     --warn: #9a4a2f;
     --warn-soft: #f1e2da;
     --shadow: rgba(32, 37, 31, 0.10);
+    --alert: #8b1a1a;
+    --alert-soft: #fdecea;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -86,12 +88,36 @@
 
   .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-soft); font-weight: 600; margin-bottom: 9px; }
 
-  .moments { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
-  .moments button {
+  /* Momento automático */
+  .momento-auto {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 11px 14px;
+    background: var(--accent-soft);
+    border-radius: 11px;
+  }
+  .momento-auto .mom-badge {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .momento-auto .mom-hora {
+    font-family: 'Spline Sans Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-left: auto;
+  }
+
+  /* Brazo */
+  .brazo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .brazo button {
     font-family: 'Hanken Grotesk', sans-serif;
     font-size: 15px;
     font-weight: 600;
-    padding: 12px 4px;
+    padding: 11px 4px;
     border: 1px solid var(--line);
     border-radius: 11px;
     background: transparent;
@@ -99,7 +125,7 @@
     cursor: pointer;
     transition: all 0.15s ease;
   }
-  .moments button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .brazo button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   .vitals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .vital { text-align: center; }
@@ -121,6 +147,24 @@
   .vital input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .vital input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .vital .unit { font-size: 11px; color: var(--ink-soft); margin-top: 5px; }
+
+  /* Nota */
+  .nota-wrap { margin-bottom: 16px; }
+  .nota-wrap textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fff;
+    padding: 10px 12px;
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: none;
+    height: 58px;
+    line-height: 1.4;
+  }
+  .nota-wrap textarea:focus { outline: none; border-color: var(--accent); }
+  .nota-wrap textarea::placeholder { color: var(--ink-soft); }
 
   .when { display: flex; gap: 10px; margin-bottom: 16px; }
   .when > div { flex: 1; }
@@ -174,20 +218,40 @@
     display: grid;
     grid-template-columns: auto 1fr auto;
     gap: 10px;
-    align-items: center;
+    align-items: start;
     padding: 9px 4px;
   }
   .reading + .reading { border-top: 1px dashed var(--line); }
-  .reading .mom { font-size: 12px; font-weight: 600; color: var(--ink-soft); width: 58px; }
-  .reading .vals { font-family: 'Spline Sans Mono', monospace; font-size: 17px; font-weight: 500; }
+  .reading .mom { font-size: 12px; font-weight: 600; color: var(--ink-soft); width: 58px; padding-top: 2px; }
+  .reading .vals {
+    font-family: 'Spline Sans Mono', monospace;
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .reading .vals.high-sys { color: var(--alert); }
   .reading .vals small { font-size: 12px; color: var(--ink-soft); font-weight: 400; }
-  .reading .meta { font-family: 'Spline Sans Mono', monospace; font-size: 12px; color: var(--ink-soft); text-align: right; }
+  .reading .meta { font-family: 'Spline Sans Mono', monospace; font-size: 11px; color: var(--ink-soft); }
+  .reading .nota-txt { font-size: 12px; color: var(--ink-soft); font-style: italic; margin-top: 2px; }
+  .reading .brazo-txt { font-size: 11px; color: var(--ink-soft); }
+  .reading .alert-badge {
+    display: inline-block;
+    background: var(--alert-soft);
+    color: var(--alert);
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Hanken Grotesk', sans-serif;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.04em;
+  }
   .reading .del {
     border: none; background: transparent; color: var(--warn);
     font-size: 18px; cursor: pointer; padding: 2px 6px; line-height: 1; opacity: 0.55;
   }
   .reading .del:hover { opacity: 1; }
-  .reading .row-main { display: flex; flex-direction: column; }
+  .reading .row-main { display: flex; flex-direction: column; gap: 2px; }
 
   .empty { text-align: center; color: var(--ink-soft); padding: 26px 0; font-size: 14px; }
 
@@ -229,31 +293,47 @@
   </header>
 
   <div class="card">
-    <div class="label">Momento del día</div>
-    <div class="moments" id="moments">
-      <button data-m="Mañana" class="on">Mañana</button>
-      <button data-m="Noche">Noche</button>
-      <button data-m="Otro">Otro</button>
+
+    <!-- Momento automático -->
+    <div class="label">Momento</div>
+    <div class="momento-auto">
+      <span class="mom-badge" id="momBadge">Mañana</span>
+      <span class="mom-hora" id="momHora"></span>
     </div>
 
+    <!-- Brazo -->
+    <div class="label">Brazo</div>
+    <div class="brazo" id="brazo">
+      <button data-b="Izquierdo" class="on">Izquierdo</button>
+      <button data-b="Derecho">Derecho</button>
+    </div>
+
+    <!-- Valores -->
     <div class="vitals">
       <div class="vital">
         <div class="label">Alta</div>
-        <input id="sys" type="number" inputmode="numeric" placeholder="120">
+        <input id="sys" type="number" inputmode="numeric" placeholder="120" min="1" max="999">
         <div class="unit">sistólica</div>
       </div>
       <div class="vital">
         <div class="label">Baja</div>
-        <input id="dia" type="number" inputmode="numeric" placeholder="80">
+        <input id="dia" type="number" inputmode="numeric" placeholder="80" min="1" max="999">
         <div class="unit">diastólica</div>
       </div>
       <div class="vital">
         <div class="label">Pulso</div>
-        <input id="pul" type="number" inputmode="numeric" placeholder="70">
+        <input id="pul" type="number" inputmode="numeric" placeholder="70" min="1" max="999">
         <div class="unit">lpm</div>
       </div>
     </div>
 
+    <!-- Nota -->
+    <div class="nota-wrap">
+      <div class="label">Nota (opcional)</div>
+      <textarea id="nota" placeholder="Brazo en reposo, tras comer, dolor de cabeza…" maxlength="200"></textarea>
+    </div>
+
+    <!-- Fecha y hora -->
     <div class="when">
       <div>
         <div class="label">Fecha</div>
@@ -278,71 +358,117 @@
   </div>
   <button class="danger" id="clearBtn">Borrar todos los registros</button>
 
-  <p class="hint">Los datos se guardan en este navegador. Exporta el CSV cada cierto tiempo para no perderlos si cambias de móvil o limpias el navegador.</p>
+  <p class="hint">Los datos se guardan en este navegador. Exporta el CSV cada cierto tiempo como copia de seguridad.</p>
 </div>
 
 <script>
-const KEY = 'bp-readings-v1';
+const KEY = 'bp-readings-v2';
 let readings = [];
-let momento = 'Mañana';
+let brazo = 'Izquierdo';
 
 const $ = id => document.getElementById(id);
-const sysEl = $('sys'), diaEl = $('dia'), pulEl = $('pul');
+const sysEl = $('sys'), diaEl = $('dia'), pulEl = $('pul'), notaEl = $('nota');
 const dateEl = $('date'), timeEl = $('time');
 
 function pad(n){ return String(n).padStart(2,'0'); }
+
+function getMomento(hora) {
+  if (!hora) hora = timeEl.value;
+  const h = parseInt(hora.split(':')[0], 10);
+  if (h >= 6 && h < 14) return 'Mañana';
+  if (h >= 14 && h < 21) return 'Tarde';
+  return 'Noche';
+}
+
+function updateMomentoBadge() {
+  const h = new Date().getHours();
+  const m = getMomento(pad(h) + ':00');
+  $('momBadge').textContent = m;
+  $('momHora').textContent = h < 14 ? '6:00–14:00' : h < 21 ? '14:00–21:00' : '21:00–6:00';
+}
+
 function nowDefaults(){
   const d = new Date();
   dateEl.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   timeEl.value = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  updateMomentoBadge();
 }
+
+// Actualizar badge cuando se cambia la hora manualmente
+timeEl.addEventListener('change', () => {
+  const m = getMomento(timeEl.value);
+  $('momBadge').textContent = m;
+  $('momHora').textContent = '';
+});
 
 function load(){
   try {
     const raw = localStorage.getItem(KEY);
     readings = raw ? JSON.parse(raw) : [];
-  } catch(e) {
-    readings = [];
-  }
+  } catch(e) { readings = []; }
   render();
 }
 
 function persist(){
   try { localStorage.setItem(KEY, JSON.stringify(readings)); }
-  catch(e) { alert('No se ha podido guardar en este navegador. Exporta el CSV para no perder los datos.'); }
+  catch(e) { alert('No se ha podido guardar. Exporta el CSV para no perder los datos.'); }
 }
 
-$('moments').addEventListener('click', e => {
+// Límite de 3 cifras en los campos numéricos
+[sysEl, diaEl, pulEl].forEach(el => {
+  el.addEventListener('input', () => {
+    if (el.value.length > 3) el.value = el.value.slice(0, 3);
+    if (parseInt(el.value, 10) > 999) el.value = '999';
+  });
+});
+
+// Brazo
+$('brazo').addEventListener('click', e => {
   const b = e.target.closest('button');
   if(!b) return;
-  document.querySelectorAll('#moments button').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('#brazo button').forEach(x => x.classList.remove('on'));
   b.classList.add('on');
-  momento = b.dataset.m;
+  brazo = b.dataset.b;
 });
 
 $('saveBtn').addEventListener('click', save);
+
+function isHigh(sys, dia) {
+  return sys >= 140 || dia >= 90;
+}
 
 function save(){
   const sys = parseInt(sysEl.value, 10);
   const dia = parseInt(diaEl.value, 10);
   const pulRaw = pulEl.value === '' ? null : parseInt(pulEl.value, 10);
+  const nota = notaEl.value.trim();
+
   if(!sys || !dia){
     flash('Falta la alta o la baja', true);
     return;
   }
+
+  // Avisos de rango (no bloquean)
+  if(sys < 60 || sys > 250) flash('Valor de alta fuera de rango habitual', true);
+  else if(dia < 30 || dia > 150) flash('Valor de baja fuera de rango habitual', true);
+
+  const momento = getMomento(timeEl.value);
+
   readings.push({
     id: Date.now() + '-' + Math.random().toString(36).slice(2,6),
     fecha: dateEl.value,
     hora: timeEl.value,
     momento,
+    brazo,
     sys, dia,
-    pul: (pulRaw == null || isNaN(pulRaw)) ? null : pulRaw
+    pul: (pulRaw == null || isNaN(pulRaw)) ? null : pulRaw,
+    nota: nota || null
   });
   persist();
-  sysEl.value = ''; diaEl.value = ''; pulEl.value = '';
+  sysEl.value = ''; diaEl.value = ''; pulEl.value = ''; notaEl.value = '';
   nowDefaults();
   render();
-  flash('Guardado');
+  if(sys >= 60 && sys <= 250 && dia >= 30 && dia <= 150) flash('Guardado');
   sysEl.focus();
 }
 
@@ -351,7 +477,7 @@ function flash(msg, warn){
   f.textContent = msg;
   f.style.color = warn ? 'var(--warn)' : 'var(--accent)';
   f.classList.add('show');
-  setTimeout(()=> f.classList.remove('show'), 1600);
+  setTimeout(()=> f.classList.remove('show'), 2000);
 }
 
 function del(id){
@@ -391,15 +517,25 @@ function render(){
     const items = byDate[date].slice().sort((a,b)=> (a.hora||'').localeCompare(b.hora||''));
     const aS = avg(items,'sys'), aD = avg(items,'dia');
     const avgTxt = (aS && aD) ? `media ${aS}/${aD}` : '';
-    const rows = items.map(r => `
+    const rows = items.map(r => {
+      const high = isHigh(r.sys, r.dia);
+      const badge = high ? '<span class="alert-badge">↑</span>' : '';
+      const valsClass = high ? 'vals high-sys' : 'vals';
+      const pulTxt = r.pul != null ? ` <small>· ${r.pul} lpm</small>` : '';
+      const brazoTxt = r.brazo ? `<div class="brazo-txt">${r.brazo}</div>` : '';
+      const notaTxt = r.nota ? `<div class="nota-txt">${r.nota}</div>` : '';
+      return `
       <div class="reading">
-        <div class="mom">${r.momento}</div>
+        <div class="mom">${r.momento||''}</div>
         <div class="row-main">
-          <div class="vals">${r.sys}/${r.dia}${r.pul!=null?` <small>· ${r.pul} lpm</small>`:''}</div>
+          <div class="${valsClass}">${r.sys}/${r.dia}${pulTxt}${badge}</div>
           <div class="meta">${r.hora||''}</div>
+          ${brazoTxt}
+          ${notaTxt}
         </div>
         <button class="del" data-id="${r.id}" aria-label="Eliminar">×</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     return `<div class="day">
       <div class="day-head"><span class="date">${fmtDate(date)}</span><span class="avg">${avgTxt}</span></div>
       ${rows}
@@ -410,9 +546,14 @@ function render(){
 }
 
 function toCSV(){
-  const head = ['Fecha','Hora','Momento','Sistolica','Diastolica','Pulso'];
+  const head = ['Fecha','Hora','Momento','Brazo','Sistolica','Diastolica','Pulso','Nota'];
   const rows = readings.slice().sort((a,b)=> (a.fecha+a.hora).localeCompare(b.fecha+b.hora))
-    .map(r => [r.fecha, r.hora||'', r.momento, r.sys, r.dia, r.pul!=null?r.pul:''].join(','));
+    .map(r => [
+      r.fecha, r.hora||'', r.momento||'', r.brazo||'',
+      r.sys, r.dia,
+      r.pul!=null ? r.pul : '',
+      r.nota ? `"${r.nota.replace(/"/g,'""')}"` : ''
+    ].join(','));
   return head.join(',') + '\n' + rows.join('\n');
 }
 
